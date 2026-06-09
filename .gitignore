@@ -1,0 +1,38 @@
+# Secrets and credentials — NEVER commit
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+azure-creds.json
+aws-creds.json
+**/secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node (if any tooling)
+node_modules/
+
+# Local data / generated telemetry
+data/
+*.log
+*.ndjson
+*.parquet
+!sample/**/*.ndjson   # allow small committed samples under sample/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Terraform / infra state
+*.tfstate
+*.tfstate.*
+.terraform/
