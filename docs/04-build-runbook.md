@@ -8,7 +8,7 @@ The principle: **build the smallest local loop first, prove it, then add breadth
 
 ## Step 0 — Repo + environment (30 min)
 
-- [ ] `git init`, push the skeleton to a public GitHub repo.
+- [✓] `git init`, push the skeleton to a public GitHub repo.
 - [ ] Python venv, `requirements.txt` (start minimal: just a JSON/schema lib and a test runner).
 - [ ] Copy `.env.example` to `.env` (gitignored). Leave it empty for now; the local slice needs no creds.
 - [ ] Confirm `.gitignore` is doing its job: `git status` shows no `.env`, no `data/`.

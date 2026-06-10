@@ -41,3 +41,28 @@ The leanest route, no cloud accounts required:
 4. (Optional, additive) Wire Sentinel and the live clouds once the local slice works.
 
 Build the local slice first. Cloud wiring is the second lap, not the first.
+
+## Environment Configuration
+
+This is the content of the .env file.
+
+```
+# Copy to .env (gitignored) and fill in. NEVER commit the real .env.
+# The local slice (steps 0-5 of the runbook) needs NONE of these.
+# These are only for wiring the real cloud environment.
+
+# --- Microsoft E5 dev tenant (Graph + Sentinel) ---
+AZURE_TENANT_ID=
+AZURE_CLIENT_ID=
+AZURE_CLIENT_SECRET=
+LOG_ANALYTICS_WORKSPACE_ID=
+LOG_ANALYTICS_DCR_ENDPOINT=
+
+# --- AWS (CloudTrail / VPC flow) ---
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=us-east-1
+
+# --- Agent / Security Copilot (MCP) ---
+AGENT_IDENTITY_CLIENT_ID=
+```

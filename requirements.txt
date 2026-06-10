@@ -1,0 +1,4 @@
+# Local slice (runbook steps 0-5); minimal, no cloud.
+# Schema discipline enforced in code via jsonschema.
+jsonschema>=4.0
+pytest>=7.0
