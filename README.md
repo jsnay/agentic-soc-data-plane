@@ -1,8 +1,6 @@
 # Agentic SOC Data Plane
 
-A working reference build of a **security operations data plane**: the layer that pulls security signal out of a messy, multi-source enterprise, normalizes it with schema discipline, and lands it query-ready in a cloud-native SOC so a question that used to take a day or two can be answered in seconds, and actioned safely by agents under guardrails.
-
-This is a small, honest, end-to-end slice. Not a slide. It runs.
+A working reference build of a **security operations data plane**: the layer that pulls security signal out of a messy, multi-source enterprise, normalizes it with schema discipline, and lands it query-ready in a cloud-native SOC and actioned safely by agents under guardrails.
 
 ---
 
@@ -10,7 +8,7 @@ This is a small, honest, end-to-end slice. Not a slide. It runs.
 
 In most large enterprises, especially ones grown through acquisition, the security data situation looks like this:
 
-> There is a lot of data, and nobody quite knows what it is. When a leader asks "is this threat occurring, can we determine X across the company," the answer is not thirty minutes. It is "we'll get back to you," followed by one to two days of research, sometimes having someone individually talk to people across seven organizations, three of whom say "why are you using that, that's the wrong data."
+> There is a lot of data, and nobody quite knows what it is. When a leader asks "is this threat occurring, can we determine X across the company," the answer is "we'll get back to you," followed by one to two days of research.
 
 The logs are usually already centralized. That part is often solved. The hard part is **normalization**: different subsidiaries, clouds, and tools each describe the same event, the same identity, the same asset differently. Until that is fixed, every cross-source question is a manual archaeology project.
 
@@ -22,17 +20,17 @@ So the platform's job is twofold: **make the data fast and trustworthy first, th
 
 ## The shape
 
+What I aim to build/prototype as I think through the architecture.
 ```
-  SOURCES (multi-cloud, multi-subsidiary)        DATA PLANE (this build)             SOC PLATFORM            HUMANS + AGENTS
-  ┌─────────────────────────────┐         ┌──────────────────────────────┐    ┌────────────────────┐   ┌──────────────────┐
-  │ AWS CloudTrail / VPC flow    │         │ ingest                       │    │ Sentinel (SIEM)    │   │ analyst in portal│
-  │ Endpoint / identity (Entra)  │  ──►    │ normalize  (schema discipline)│──► │ Defender XDR       │──►│ Security Copilot │
-  │ Synthetic "subsidiary" logs  │         │ correlate  (identity graph)  │    │ KQL over Log Anlyt.│   │ agent (guardrailed)│
-  │ (the un-migrated hard case)  │         │ validate   (pre + post)      │    └────────────────────┘   └──────────────────┘
-  └─────────────────────────────┘         └──────────────────────────────┘
-                                                      │
-                                          Entra identity = signal source
-                                          + least-privilege guardrail for agents
+  SOURCES (multi-cloud/subsidiary)  DATA PLANE (this build)             SOC PLATFORM             HUMANS + AGENTS
+  ┌────────────────────────────┐    ┌──────────────────────────────┐    ┌────────────────────┐   ┌────────────────────┐
+  │ AWS CloudTrail / VPC flow  │    │ Ingest                       │    │ Sentinel (SIEM)    │   │ Analyst in portal  │
+  │ Endpoint / identity (Entra)│──► │ Normalize (schema discipline)│──► │ Defender XDR       │──►│ Security Copilot   │
+  │ Synthetic "subsidiary" logs│    │ Correlate (identity graph)   │    │ KQL over Log Anlyt.│   │ agent (guardrailed)│
+  │ (the un-migrated hard case)│    │ Validate (pre + post)        │    └────────────────────┘   └────────────────────┘
+  └────────────────────────────┘    └──────────────────────────────┘
+
+  Entra identity = signal source + least-privilege guardrail for agents
 ```
 
 The data plane is the middle column. It does not run the SOC. It builds the road the SOC drives on.
@@ -55,16 +53,16 @@ The data plane is the middle column. It does not run the SOC. It builds the road
 
 ## How to read this repo
 
-If you have ninety seconds, read this README and [`docs/00-architecture.md`](docs/00-architecture.md).
+If you have a few minutes, read this README and [`docs/00-architecture.md`](docs/00-architecture.md).
 
-If you want to see how the thinking was done, read [`docs/01-decision-record.md`](docs/01-decision-record.md). That is the knowns / assumptions / choices / trade-offs log. It is the most important document here. It shows the reasoning, not just the result.
+If you want to see how the thinking was done, read [`docs/01-decision-record.md`](docs/01-decision-record.md). That is the knowns / assumptions / choices / trade-offs log. It is the most important document here. It shows my reasoning, not just the result.
 
 | Path | What's in it |
 |---|---|
 | [`docs/00-architecture.md`](docs/00-architecture.md) | System design, component responsibilities, the free-tier infrastructure mapping |
 | [`docs/01-decision-record.md`](docs/01-decision-record.md) | Every meaningful choice, what it cost, what was rejected and why |
 | [`docs/02-data-model.md`](docs/02-data-model.md) | The canonical event schema and the identity-correlation design |
-| [`docs/03-threat-question.md`](docs/03-threat-question.md) | The cross-source question, the day-vs-seconds comparison, the demo script |
+| [`docs/03-threat-question.md`](docs/03-threat-question.md) | Demo script - Identifying answers to critical security questions quickly, agentic enablement |
 | `ingest/` | Source emitters: AWS CloudTrail/flow logs, synthetic subsidiary logs |
 | `normalize/` | The schema-discipline engine. The heart of the build. |
 | `correlate/` | Cross-source identity resolution |
