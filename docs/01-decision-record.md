@@ -1,13 +1,13 @@
 # Decision Record
 
-The reasoning behind the build. Read this if you want to see how the thinking was done, not just the result.
+The reasoning behind the project. This captures how my thinking was done.
 
 Structured in three parts:
 1. **What we know** — facts about the target environment, stated as facts.
 2. **What we're assuming** — inferences we are acting on but have not confirmed. Flagged so they can be corrected.
 3. **The choices** — each meaningful decision as a short ADR: context, decision, trade-off, what was rejected.
 
-The discipline here is the point. A platform leader's value is not having the right answer on day one. It is owning the analysis that makes a decision defensible, separating what is known from what is assumed, and being able to say which is which under questioning.
+The discipline here is the point. It's okay not having the right answer on day one. Ownership of the analysis that defends decisions, with what's known vs. assumed.
 
 ---
 
@@ -24,7 +24,7 @@ These are grounded facts about the class of environment this build models. Where
 | K5 | The enterprise estate is multicloud: primarily AWS for compute/containers, plus GCP (BigQuery/Vertex) and Azure for specialized AI, plus an on-prem XML tail. | Public (CIO interview) |
 | K6 | The core pain: "a lot of data, nobody knows what it is." A cross-source question that should take seconds takes one to two days of manual research across multiple orgs. | Direct |
 | K7 | Success is defined as moving **off manual processes** toward automation ("things that don't require people to do the right thing, it just happens automatically") and not getting breached. | Direct |
-| K8 | The why-now is the machine-speed-adversary shift. The defender side must move to machine speed because the attacker side already has. This is the top initiative driving the org refresh. | Direct + public |
+| K8 | The why-now is the machine-speed-adversary shift. The defender side must move to machine speed because the attacker side already has. This is the top initiative driving the org refresh. Anthropic Mythos anxiety. | Direct + public |
 | K9 | Vulnerability management is a **separate** org, deliberately pulled out from under the SOC. | Direct |
 
 ## Part 2 — What we're assuming
@@ -38,8 +38,6 @@ Stated as assumptions on purpose. Each is actionable but unconfirmed. In the roo
 | A3 | The identity correlation problem is real and currently manual. | "Talk to people across seven orgs, three say wrong data" is an identity/provenance problem at root. | Ask how cross-source entity resolution is done today. |
 | A4 | Subsidiaries have genuinely different log shapes, not just different volumes. | Acquisition-grown estates almost always do. | Ask for two real sample schemas from two subsidiaries. |
 | A5 | The agentic layer is wanted but not yet trusted on the data. | Stated desire for agents + stated data-quality pain = agents can't be trusted yet. | Ask what would have to be true before an agent is allowed to action without review. |
-
-The honesty of Part 2 is the differentiator. Anyone can assert an architecture. Showing exactly where the architecture rests on an assumption, and naming the question that would confirm it, is what a platform owner does. It is also a gift to the hiring manager: it turns the interview into a working session.
 
 ---
 
@@ -55,7 +53,7 @@ The honesty of Part 2 is the differentiator. Anyone can assert an architecture. 
 
 **Why.** A running slice converts the entire conversation from "here is what I would do" to "here is what I did, and here is what I learned doing it, including where my assumptions were wrong." The second conversation is unbeatable. The time cost is the price of that shift, and it is worth it.
 
-**Rejected.** Design-only. It leaves the candidate indistinguishable from anyone else who read the same articles.
+**Rejected.** Design-only. It leaves the implementer without the value of learning hands-on.
 
 ---
 
@@ -97,7 +95,7 @@ The honesty of Part 2 is the differentiator. Anyone can assert an architecture. 
 
 **Why.** A robust pipeline can still emit garbage if only one end is checked. And off-the-shelf DQ tools assume a pipeline shape; when the real shape differs, the tool either blocks legitimate data or waves through bad data. The validation rules that match the actual contract are small enough to own and too important to mis-fit. This is build-vs-buy decided on the merits of the data shape, not on vendor pull.
 
-**Rejected.** Single-ended validation (rots silently). Blanket purchase of a DQ tool regardless of fit (mis-fit risk).
+**Rejected.** Single-ended validation (fails silently). Blanket purchase of a DQ tool regardless of fit (mis-fit risk).
 
 ---
 
@@ -137,7 +135,7 @@ The honesty of Part 2 is the differentiator. Anyone can assert an architecture. 
 
 **Trade-off.** Identity correlation is less flashy than a crown-jewels attack-path graph.
 
-**Why.** VM is deliberately a separate function in the target org (K9). Building a VM demo would signal either not understanding the org boundary or reaching across it. Identity correlation is squarely the data plane's job, hits the actual stated pain (the seven-orgs problem), and rests on genuine prior experience. Defensible beats flashy.
+**Why.** VM is deliberately a separate function in the target org (K9). Building a VM demo would signal either not understanding the org boundary or reaching across it. Identity correlation is squarely the data plane's job, hits the actual stated pain, and rests on genuine prior experience.
 
 **Rejected.** Toxic-combination/attack-path demo (org-boundary risk, and it implies a VM mandate this role does not have).
 
@@ -151,12 +149,8 @@ The honesty of Part 2 is the differentiator. Anyone can assert an architecture. 
 
 **Trade-off.** A human-in-the-loop boundary caps how "autonomous" the demo looks.
 
-**Why.** Treat the agent as a nondeterministic producer, the same way you treat human developers who are also nondeterministic, and put the same kind of guardrails and checks around it. An agent on un-validated data produces confident nonsense faster. An agent with unbounded tools is an incident waiting to happen. The guardrail design is the genuinely defensible part of the agentic story, and it is the part that is actually ours to claim. Machine speed without guardrails is just a faster way to lose control.
+**Why.** Treat the agent as a nondeterministic producer, the same way you treat human developers who are also nondeterministic, and put the same kind of guardrails and checks around it. An agent on un-validated data produces confident mistakes faster. An agent with unbounded tools is an incident. The guardrail design is the genuinely defensible part of the agentic story, and it is the part that is actually ours to claim. Machine speed without guardrails is just a faster way to lose control. Future would include graduated autonomy levels for agentic roles.
 
 **Rejected.** Broad autonomy (impressive until the first wrong action; wrong shape for a regulated environment).
 
 ---
-
-## How to use this document in conversation
-
-Lead with Part 1, so it is clear the build rests on what is actually known. Move to Part 2 explicitly: "here is where I am assuming, and here is the question that would confirm it." That invites correction and turns the interview into a design review. Then walk one or two ADRs, ideally ADR-004 (build-vs-buy on the merits) and ADR-008 (guardrails as the real agentic contribution), because those are the two where ownership of the analysis shows most clearly.

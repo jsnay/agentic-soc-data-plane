@@ -6,7 +6,7 @@ The canonical schema and the identity graph. This is where "nobody knows what it
 
 ## The canonical event
 
-Every raw event from every source becomes one canonical event with a known shape. We align to **ASIM** field names so the SOC (Sentinel) consumes it natively, but we keep the model small: only the fields the demo needs, extensible later.
+Every raw event from every source becomes one canonical event with a known shape. We align to **ASIM** field names so the SOC (Sentinel) consumes it natively, but we keep the model small: only the fields the demo needs, extend later.
 
 A canonical event, conceptually:
 
@@ -31,7 +31,7 @@ A canonical event, conceptually:
     "src_identifier_type": "aws_iam_principal",
     "resolved_entity_id": "ent:person:0091",  // the graph's resolved entity, filled by correlation
     "display_name": "j.okafor",               // best-known human-readable, if resolvable
-    "confidence": 0.92                         // correlation confidence, 0–1
+    "confidence": 0.92                        // correlation confidence, 0–1
   },
 
   // --- target: what was acted on ---
@@ -42,8 +42,8 @@ A canonical event, conceptually:
   },
 
   // --- network, when relevant ---
-  "src_ip": "203.0.113.44",
-  "src_geo": "US-IL",
+  "src_ip": "10.0.0.44",
+  "src_geo": "US-WA",
 
   // --- the original, untranslated, for recovery and audit ---
   "raw_excerpt": { /* the source-native fields, verbatim, for the fields we mapped */ }
@@ -58,7 +58,7 @@ The model is intentionally minimal. Three field groups carry the whole design:
 - **Actor with `src_identifier` AND `resolved_entity_id`** is the correlation hinge. The source identifier is kept exactly as it appeared (never overwritten); the resolved entity is added alongside. You can always see both what the source said and who we think it is, plus a confidence. That separation is what makes the correlation auditable instead of magic.
 - **`event_type` aligned to ASIM** lets the same question run across sources without per-source special-casing.
 
-Everything else is extension. Resist adding fields until a question needs them. Schema bloat is how "nobody knows what it is" comes back.
+Can be extended later.
 
 ---
 
@@ -67,7 +67,7 @@ Everything else is extension. Resist adding fields until a question needs them. 
 Each source gets a **normalizer**: a small, testable mapping from that source's raw shape to the canonical event. The contract for every normalizer:
 
 1. **Total on its inputs or explicitly partial.** Either it maps a record fully, or it emits a canonical event flagged `event_result: "Partial"` with a validation note. It never silently drops a field it did not understand.
-2. **Never invents.** If a field is absent in the source, it is absent (null) in the canonical event. No defaulting that fabricates signal. (This is the same discipline that keeps a RAG system from hallucinating columns: bound the output to what the input actually supports.)
+2. **Never invents.** If a field is absent in the source, it is absent (null) in the canonical event. No defaulting that fabricates signal. (Just like a RAG system we don't want hallucinating columns: output is bounded to what the input supports.)
 3. **Preserves the source identifier verbatim.** `src_identifier` is the source's truth. Resolution is layered on top, never destructive.
 4. **Is independently testable.** Given a raw fixture, it produces a known canonical event. Normalizers are unit-tested against committed sample records.
 
@@ -77,9 +77,7 @@ The three normalizers in the build:
 |---|---|---|
 | `aws.cloudtrail` | AWS JSON, `userIdentity`, `eventName`, `errorCode` | IAM principal → actor; `errorCode` presence → `event_result` |
 | `entra.signin` | Entra sign-in log JSON | UPN → actor; `status.errorCode` → result; rich geo |
-| `northstar.syslog` | Deliberately ugly: pipe-delimited, abbreviated field names, local user IDs, different timestamp format | The hard case. Proves normalization earns its keep. Local user IDs must be correlated to real entities. |
-
-The third one is the point. It is built to be annoying in exactly the ways a real un-migrated subsidiary is annoying: different delimiters, different identifiers, different time format, locally-meaningful-but-globally-opaque user IDs. If the canonical model survives `northstar`, it survives.
+| `northstar.syslog` | Deliberately ugly: pipe-delimited, abbreviated field names, local user IDs, different timestamp format | Made harder to prove normalization. Local user IDs must be correlated to real entities. |
 
 ---
 

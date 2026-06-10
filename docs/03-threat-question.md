@@ -1,6 +1,6 @@
 # The Threat Question
 
-The single question the whole build exists to answer fast. Pick one question, make it take seconds, and the architecture has proven itself.
+The single question the whole build exists to answer fast. We'll pick one question, make it take seconds, and the architecture has proven itself.
 
 ---
 
